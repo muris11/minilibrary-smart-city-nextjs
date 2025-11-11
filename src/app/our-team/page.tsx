@@ -382,35 +382,6 @@ export default function OurTeamPage() {
       </section>
 
       {/* Call to Action */}
-      <section className="py-8 sm:py-12 lg:py-16 border-t border-slate-800 relative z-10">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <h3 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">
-              Join Our Mission
-            </h3>
-            <p className="text-base sm:text-lg lg:text-xl text-gray-300 mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed">
-              Help us build the future of smart cities. We&apos;re always
-              looking for talented individuals passionate about urban innovation
-              and sustainable development.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-              <Link href="/contact">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="border-purple-500 text-purple-400 hover:bg-purple-500/10 w-full sm:w-auto"
-                >
-                  <Mail className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                  Get In Touch
-                </Button>
-              </Link>
-            </div>
-          </motion.div>
-        </div>
-      </section>
     </div>
   );
 }

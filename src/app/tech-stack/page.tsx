@@ -532,24 +532,6 @@ export default function TechStackPage() {
               transition={{ delay: 1.2, duration: 0.6 }}
               className="mt-6 sm:mt-8 md:mt-10 lg:mt-12 text-center px-2"
             >
-              <div className="bg-linear-to-r from-cyan-500/10 via-purple-500/10 to-green-500/10 border border-cyan-500/20 rounded-lg sm:rounded-xl lg:rounded-2xl p-4 sm:p-6 md:p-8">
-                <h4 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-2 sm:mb-3">
-                  Ready to Explore More?
-                </h4>
-                <p className="text-gray-300 mb-4 sm:mb-6 max-w-2xl mx-auto text-sm sm:text-base md:text-lg">
-                  Dive deeper into the world of Smart City technologies and
-                  discover how these innovations are transforming urban
-                  environments worldwide.
-                </p>
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="inline-flex items-center gap-2 bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg sm:rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl text-sm sm:text-base"
-                >
-                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
-                  <span>Explore Smart City Pillars</span>
-                </motion.div>
-              </div>
             </motion.div>
           </motion.div>
         </div>
