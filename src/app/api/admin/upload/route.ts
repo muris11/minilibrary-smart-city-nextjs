@@ -1,8 +1,12 @@
 import { authenticateRequest } from "@/lib/auth";
+import { createClient } from "@supabase/supabase-js";
 import { randomUUID } from "crypto";
-import { mkdir, writeFile } from "fs/promises";
 import { NextRequest, NextResponse } from "next/server";
-import { join } from "path";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export async function POST(request: NextRequest) {
   try {
@@ -44,26 +48,41 @@ export async function POST(request: NextRequest) {
     const fileExtension = file.name.split(".").pop();
     const fileName = `${randomUUID()}.${fileExtension}`;
 
-    // Create uploads directory if it doesn't exist
-    const uploadsDir = join(process.cwd(), "public", "uploads");
-    try {
-      await mkdir(uploadsDir, { recursive: true });
-    } catch {
-      // Directory might already exist, continue
-    }
-
-    // Convert file to buffer and save
+    // Convert file to buffer
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    const filePath = join(uploadsDir, fileName);
-    await writeFile(filePath, buffer);
 
-    // Return the public URL
-    const fileUrl = `/uploads/${fileName}`;
+    // Upload to Supabase Storage
+    const { error: uploadError } = await supabase.storage
+      .from("uploads")
+      .upload(fileName, buffer, {
+        contentType: file.type,
+        upsert: false,
+      });
+
+    if (uploadError) {
+      console.error("Supabase upload error:", uploadError);
+      return NextResponse.json(
+        { error: "Failed to upload file to storage" },
+        { status: 500 }
+      );
+    }
+
+    // Get public URL
+    const { data: urlData } = supabase.storage
+      .from("uploads")
+      .getPublicUrl(fileName);
+
+    if (!urlData?.publicUrl) {
+      return NextResponse.json(
+        { error: "Failed to get public URL" },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       message: "File uploaded successfully",
-      url: fileUrl,
+      url: urlData.publicUrl,
       fileName,
     });
   } catch (error) {
