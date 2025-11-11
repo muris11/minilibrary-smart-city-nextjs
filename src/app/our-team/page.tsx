@@ -235,38 +235,44 @@ export default function OurTeamPage() {
               >
                 <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700 hover:border-purple-500/40 transition-all duration-300 h-full">
                   <CardHeader className="text-center pb-4">
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 bg-linear-to-br from-purple-500 to-pink-500 rounded-full mx-auto mb-3 sm:mb-4 flex items-center justify-center overflow-hidden relative">
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full mx-auto mb-3 sm:mb-4 overflow-hidden relative">
                       {member.avatar ? (
-                        <Image
-                          src={member.avatar}
-                          alt={member.name}
-                          fill
-                          className="object-cover rounded-full"
-                          onError={(e) => {
-                            // Hide broken image and show fallback
-                            e.currentTarget.style.display = "none";
-                            e.currentTarget.nextElementSibling?.classList.remove(
-                              "hidden"
-                            );
-                          }}
-                        />
-                      ) : null}
-                      {(!member.avatar ||
-                        member.avatar.includes("supabase")) && (
-                        <span className="text-xl sm:text-2xl font-bold text-white z-10 relative">
-                          {member.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </span>
+                        <>
+                          <Image
+                            src={member.avatar}
+                            alt={member.name}
+                            fill
+                            className="object-cover"
+                            onError={(e) => {
+                              // Hide broken image and show fallback
+                              e.currentTarget.style.display = "none";
+                              e.currentTarget.nextElementSibling?.classList.remove(
+                                "hidden"
+                              );
+                            }}
+                          />
+                          {/* Gradient overlay for better text contrast if needed */}
+                          <div className="absolute inset-0 bg-linear-to-br from-purple-500/20 to-pink-500/20 rounded-full"></div>
+                        </>
+                      ) : (
+                        <div className="w-full h-full bg-linear-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                          <span className="text-xl sm:text-2xl font-bold text-white">
+                            {member.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")}
+                          </span>
+                        </div>
                       )}
                       {member.avatar && !member.avatar.includes("supabase") && (
-                        <span className="text-xl sm:text-2xl font-bold text-white hidden z-10 relative">
-                          {member.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </span>
+                        <div className="absolute inset-0 bg-linear-to-br from-purple-500/20 to-pink-500/20 rounded-full hidden">
+                          <span className="text-xl sm:text-2xl font-bold text-white flex items-center justify-center h-full">
+                            {member.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")}
+                          </span>
+                        </div>
                       )}
                     </div>
                     <CardTitle className="text-lg sm:text-xl text-white mb-1">
