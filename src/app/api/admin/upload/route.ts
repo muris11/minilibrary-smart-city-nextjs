@@ -110,7 +110,18 @@ export async function POST(request: NextRequest) {
     let publicUrl: string;
 
     // Check if we're in production (Vercel) or development
-    if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
+    // Use Vercel Blob if token is available, otherwise fallback to local storage
+    const hasBlobToken = !!process.env.BLOB_READ_WRITE_TOKEN;
+    const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL || hasBlobToken;
+
+    console.log('🌍 UPLOAD API: Environment detection:', {
+      NODE_ENV: process.env.NODE_ENV,
+      VERCEL: process.env.VERCEL,
+      hasBlobToken: hasBlobToken,
+      willUseBlob: isProduction
+    });
+
+    if (isProduction) {
       // Use Vercel Blob Storage for production
       console.log('📤 UPLOAD API: Using Vercel Blob Storage (production)');
       try {
