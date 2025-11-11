@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+
+# Block admin and API routes from search engines
+Disallow: /admin
+Disallow: /api/admin
+Disallow: /api/auth
+
+# Allow important public routes
+Allow: /api/team
+Allow: /api/health
+
+# Sitemap
+Sitemap: https://minilibrary.sikcb.my.id/sitemap.xml
