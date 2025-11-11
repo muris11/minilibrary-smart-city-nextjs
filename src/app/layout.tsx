@@ -98,33 +98,32 @@ export default function RootLayout({
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "EducationalOrganization",
-    "name": "Mini Library Smart City",
-    "description": "Explore Smart City initiatives in Lampung with interactive learning modules, quizzes, and comprehensive information about sustainable urban development.",
-    "url": "https://minilibrary.sikcb.my.id",
-    "logo": "https://minilibrary.sikcb.my.id/images/lg.png",
-    "sameAs": [
-      "https://minilibrary.sikcb.my.id"
-    ],
-    "address": {
+    name: "Mini Library Smart City",
+    description:
+      "Explore Smart City initiatives in Lampung with interactive learning modules, quizzes, and comprehensive information about sustainable urban development.",
+    url: "https://minilibrary.sikcb.my.id",
+    logo: "https://minilibrary.sikcb.my.id/images/lg.png",
+    sameAs: ["https://minilibrary.sikcb.my.id"],
+    address: {
       "@type": "PostalAddress",
-      "addressRegion": "Lampung",
-      "addressCountry": "ID"
+      addressRegion: "Lampung",
+      addressCountry: "ID",
     },
-    "knowsAbout": [
+    knowsAbout: [
       "Smart City Technology",
       "Urban Planning",
       "IoT Solutions",
       "Digital Transformation",
-      "Sustainable Development"
+      "Sustainable Development",
     ],
-    "educationalCredentialAwarded": "Smart City Knowledge Certificate",
-    "hasEducationalUse": "Learning about Smart City concepts and implementations",
-    "teaches": [
+    educationalCredentialAwarded: "Smart City Knowledge Certificate",
+    hasEducationalUse: "Learning about Smart City concepts and implementations",
+    teaches: [
       "Smart City Fundamentals",
       "IoT in Urban Environments",
       "Digital Governance",
-      "Sustainable Urban Development"
-    ]
+      "Sustainable Urban Development",
+    ],
   };
 
   return (
