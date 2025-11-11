@@ -235,31 +235,33 @@ export default function OurTeamPage() {
               >
                 <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700 hover:border-purple-500/40 transition-all duration-300 h-full">
                   <CardHeader className="text-center pb-4">
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 bg-linear-to-br from-purple-500 to-pink-500 rounded-full mx-auto mb-3 sm:mb-4 flex items-center justify-center overflow-hidden">
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 bg-linear-to-br from-purple-500 to-pink-500 rounded-full mx-auto mb-3 sm:mb-4 flex items-center justify-center overflow-hidden relative">
                       {member.avatar ? (
                         <Image
                           src={member.avatar}
                           alt={member.name}
-                          width={96}
-                          height={96}
-                          className="w-full h-full object-cover"
+                          fill
+                          className="object-cover rounded-full"
                           onError={(e) => {
                             // Hide broken image and show fallback
-                            e.currentTarget.style.display = 'none';
-                            e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                            e.currentTarget.style.display = "none";
+                            e.currentTarget.nextElementSibling?.classList.remove(
+                              "hidden"
+                            );
                           }}
                         />
                       ) : null}
-                      {(!member.avatar || member.avatar.includes('supabase')) && (
-                        <span className="text-xl sm:text-2xl font-bold text-white">
+                      {(!member.avatar ||
+                        member.avatar.includes("supabase")) && (
+                        <span className="text-xl sm:text-2xl font-bold text-white z-10 relative">
                           {member.name
                             .split(" ")
                             .map((n) => n[0])
                             .join("")}
                         </span>
                       )}
-                      {member.avatar && !member.avatar.includes('supabase') && (
-                        <span className="text-xl sm:text-2xl font-bold text-white hidden">
+                      {member.avatar && !member.avatar.includes("supabase") && (
+                        <span className="text-xl sm:text-2xl font-bold text-white hidden z-10 relative">
                           {member.name
                             .split(" ")
                             .map((n) => n[0])
