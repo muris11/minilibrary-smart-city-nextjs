@@ -1,12 +1,7 @@
-import { createClient } from "@supabase/supabase-js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { NextRequest } from "next/server";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { supabase, supabaseAdmin } from "./supabase";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
@@ -71,7 +66,7 @@ export async function createUser(
 ) {
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const { data: user, error } = await supabase
+  const { data: user, error } = await supabaseAdmin
     .from("User")
     .insert({
       email,
