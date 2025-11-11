@@ -1,3 +1,4 @@
+import { authenticateRequest } from "@/lib/auth";
 import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -12,6 +13,15 @@ interface RouteParams {
 // GET /api/admin/team/[id] - Get specific team member
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
+    // Check authentication
+    const user = await authenticateRequest(request);
+    if (!user || user.role !== "ADMIN") {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const { id } = await params;
     const teamMember = await prisma.teamMember.findUnique({
       where: { id },
@@ -37,6 +47,15 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 // PUT /api/admin/team/[id] - Update team member
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
+    // Check authentication
+    const user = await authenticateRequest(request);
+    if (!user || user.role !== "ADMIN") {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const { id } = await params;
     const body = await request.json();
     const { name, role, bio, avatar, email, isActive, order } = body;
@@ -67,6 +86,15 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 // DELETE /api/admin/team/[id] - Delete team member
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
+    // Check authentication
+    const user = await authenticateRequest(request);
+    if (!user || user.role !== "ADMIN") {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const { id } = await params;
     await prisma.teamMember.delete({
       where: { id },

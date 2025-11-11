@@ -1,3 +1,4 @@
+import { authenticateRequest } from "@/lib/auth";
 import { randomUUID } from "crypto";
 import { mkdir, writeFile } from "fs/promises";
 import { NextRequest, NextResponse } from "next/server";
@@ -5,6 +6,15 @@ import { join } from "path";
 
 export async function POST(request: NextRequest) {
   try {
+    // Check authentication
+    const user = await authenticateRequest(request);
+    if (!user || user.role !== "ADMIN") {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const data = await request.formData();
     const file: File | null = data.get("file") as unknown as File;
 

@@ -1,3 +1,4 @@
+import { authenticateRequest } from "@/lib/auth";
 import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -12,6 +13,15 @@ interface RouteParams {
 // GET /api/admin/content/[id] - Get specific content page
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
+    // Check authentication
+    const user = await authenticateRequest(request);
+    if (!user || user.role !== "ADMIN") {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const { id } = await params;
     const contentPage = await prisma.contentPage.findUnique({
       where: { id },
@@ -34,6 +44,15 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 // PUT /api/admin/content/[id] - Update content page
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
+    // Check authentication
+    const user = await authenticateRequest(request);
+    if (!user || user.role !== "ADMIN") {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const { id } = await params;
     const body = await request.json();
     const { slug, title, content, metadata, isActive } = body;
@@ -62,6 +81,15 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 // DELETE /api/admin/content/[id] - Delete content page
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
+    // Check authentication
+    const user = await authenticateRequest(request);
+    if (!user || user.role !== "ADMIN") {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const { id } = await params;
     await prisma.contentPage.delete({
       where: { id },

@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { NextRequest } from "next/server";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -100,6 +101,21 @@ export function verifyToken(token: string) {
       name?: string;
       role: string;
     };
+  } catch {
+    return null;
+  }
+}
+
+export async function authenticateRequest(request: NextRequest) {
+  try {
+    const token = request.cookies.get("auth-token")?.value;
+
+    if (!token) {
+      return null;
+    }
+
+    const decoded = verifyToken(token);
+    return decoded;
   } catch {
     return null;
   }

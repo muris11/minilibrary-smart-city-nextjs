@@ -1,11 +1,21 @@
+import { authenticateRequest } from "@/lib/auth";
 import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
 // GET /api/admin/team - Get all team members
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    // Check authentication
+    const user = await authenticateRequest(request);
+    if (!user || user.role !== "ADMIN") {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const teamMembers = await prisma.teamMember.findMany({
       where: { isActive: true },
       orderBy: { order: "asc" },
@@ -24,6 +34,15 @@ export async function GET() {
 // POST /api/admin/team - Create new team member
 export async function POST(request: NextRequest) {
   try {
+    // Check authentication
+    const user = await authenticateRequest(request);
+    if (!user || user.role !== "ADMIN") {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const { name, role, bio, avatar, email, order } = body;
 
