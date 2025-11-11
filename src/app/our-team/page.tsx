@@ -43,7 +43,7 @@ export default function OurTeamPage() {
   useEffect(() => {
     const fetchTeamMembers = async () => {
       try {
-        const response = await fetch("/api/admin/team");
+        const response = await fetch("/api/team");
         if (response.ok) {
           const data = await response.json();
           setTeamMembers(data);
@@ -243,9 +243,23 @@ export default function OurTeamPage() {
                           width={96}
                           height={96}
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            // Hide broken image and show fallback
+                            e.currentTarget.style.display = 'none';
+                            e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                          }}
                         />
-                      ) : (
+                      ) : null}
+                      {(!member.avatar || member.avatar.includes('supabase')) && (
                         <span className="text-xl sm:text-2xl font-bold text-white">
+                          {member.name
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")}
+                        </span>
+                      )}
+                      {member.avatar && !member.avatar.includes('supabase') && (
+                        <span className="text-xl sm:text-2xl font-bold text-white hidden">
                           {member.name
                             .split(" ")
                             .map((n) => n[0])
