@@ -1,8 +1,7 @@
 import { authenticateRequest } from "@/lib/auth";
 import { randomUUID } from "crypto";
-import { mkdir, writeFile } from "fs/promises";
 import { NextRequest, NextResponse } from "next/server";
-import { join } from "path";
+import { put } from "@vercel/blob";
 
 export async function OPTIONS() {
   return new Response(null, {
@@ -101,26 +100,38 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    console.log('📤 UPLOAD API: Saving to local storage...');
+    console.log('📤 UPLOAD API: Uploading file...');
 
-    // Create uploads directory if it doesn't exist
-    const uploadsDir = join(process.cwd(), "public", "uploads");
-    try {
-      await mkdir(uploadsDir, { recursive: true });
-    } catch {
-      // Directory might already exist, continue
+    let publicUrl: string;
+
+    // Check if we're in production (Vercel) or development
+    if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
+      // Use Vercel Blob Storage for production
+      console.log('📤 UPLOAD API: Using Vercel Blob Storage (production)');
+      const blob = await put(fileName, buffer, {
+        access: 'public',
+        contentType: file.type,
+      });
+      publicUrl = blob.url;
+      console.log('✅ UPLOAD API: File uploaded to Vercel Blob:', publicUrl);
+    } else {
+      // Use local storage for development
+      console.log('📤 UPLOAD API: Using local storage (development)');
+      const { mkdir, writeFile } = await import("fs/promises");
+      const { join } = await import("path");
+
+      const uploadsDir = join(process.cwd(), "public", "uploads");
+      try {
+        await mkdir(uploadsDir, { recursive: true });
+      } catch {
+        // Directory might already exist, continue
+      }
+
+      const filePath = join(uploadsDir, fileName);
+      await writeFile(filePath, buffer);
+      publicUrl = `/uploads/${fileName}`;
+      console.log('✅ UPLOAD API: File saved locally to:', filePath);
     }
-
-    // Save file to local storage
-    const filePath = join(uploadsDir, fileName);
-    await writeFile(filePath, buffer);
-
-    console.log('✅ UPLOAD API: File saved successfully to:', filePath);
-
-    // Generate public URL
-    const publicUrl = `/uploads/${fileName}`;
-
-    console.log('🔗 UPLOAD API: Public URL:', publicUrl);
 
     return NextResponse.json(
       {
