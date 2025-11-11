@@ -1,12 +1,8 @@
 import { authenticateRequest } from "@/lib/auth";
-import { createClient } from "@supabase/supabase-js";
 import { randomUUID } from "crypto";
+import { mkdir, writeFile } from "fs/promises";
 import { NextRequest, NextResponse } from "next/server";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { join } from "path";
 
 export async function OPTIONS() {
   return new Response(null, {
@@ -105,110 +101,44 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    console.log('📤 UPLOAD API: Uploading to Supabase Storage...');
-    // Upload to Supabase Storage
-    const { error: uploadError } = await supabase.storage
-      .from("uploads")
-      .upload(fileName, buffer, {
-        contentType: file.type,
-        upsert: false,
-      });
+    console.log('📤 UPLOAD API: Saving to local storage...');
 
-    if (uploadError) {
-      console.error('❌ UPLOAD API: Supabase upload error:', uploadError);
-
-      // Provide more specific error messages
-      if (uploadError.message?.includes("Bucket not found")) {
-        return NextResponse.json(
-          {
-            error: "Storage bucket 'uploads' not found. Please create it in Supabase Dashboard",
-            details: "Go to Supabase Dashboard > Storage > Create bucket named 'uploads' and make it public",
-            instructions: [
-              "1. Open Supabase Dashboard",
-              "2. Go to Storage section",
-              "3. Click 'Create bucket'",
-              "4. Name: 'uploads'",
-              "5. Check 'Public bucket'",
-              "6. Add policies: Allow all users for SELECT, INSERT, UPDATE, DELETE"
-            ]
-          },
-          {
-            status: 500,
-            headers: {
-              'Access-Control-Allow-Origin': '*',
-              'Access-Control-Allow-Methods': 'POST, OPTIONS',
-              'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-            }
-          }
-        );
-      }
-
-      if (uploadError.message?.includes("permission")) {
-        return NextResponse.json(
-          {
-            error: "Storage permission denied",
-            details: "Make sure the 'uploads' bucket has public read/write permissions"
-          },
-          {
-            status: 500,
-            headers: {
-              'Access-Control-Allow-Origin': '*',
-              'Access-Control-Allow-Methods': 'POST, OPTIONS',
-              'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-            }
-          }
-        );
-      }
-
-      return NextResponse.json(
-        { error: `Upload failed: ${uploadError.message}` },
-        {
-          status: 500,
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-          }
-        }
-      );
+    // Create uploads directory if it doesn't exist
+    const uploadsDir = join(process.cwd(), "public", "uploads");
+    try {
+      await mkdir(uploadsDir, { recursive: true });
+    } catch {
+      // Directory might already exist, continue
     }
 
-    console.log('✅ UPLOAD API: File uploaded successfully to Supabase');
-    // Get public URL
-    const { data: urlData } = supabase.storage
-      .from("uploads")
-      .getPublicUrl(fileName);
+    // Save file to local storage
+    const filePath = join(uploadsDir, fileName);
+    await writeFile(filePath, buffer);
 
-    console.log('🔗 UPLOAD API: Generated public URL:', urlData.publicUrl);
+    console.log('✅ UPLOAD API: File saved successfully to:', filePath);
 
-    if (!urlData?.publicUrl) {
-      console.error('❌ UPLOAD API: Failed to get public URL');
-      return NextResponse.json(
-        { error: "Failed to get public URL" },
-        {
-          status: 500,
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-          }
-        }
-      );
-    }
+    // Generate public URL
+    const publicUrl = `/uploads/${fileName}`;
 
-    console.log('🎉 UPLOAD API: Upload completed successfully, returning response');
+    console.log('🔗 UPLOAD API: Public URL:', publicUrl);
 
-    return NextResponse.json({
-      message: "File uploaded successfully",
-      url: urlData.publicUrl,
-      fileName,
-    }, {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    return NextResponse.json(
+      {
+        message: "File uploaded successfully",
+        url: publicUrl,
+        fileName: fileName,
+        size: buffer.length,
+        type: file.type,
+      },
+      {
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        },
       }
-    });
+    );
+
   } catch (error) {
     console.error("Error uploading file:", error);
     return NextResponse.json(

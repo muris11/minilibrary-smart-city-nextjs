@@ -22,18 +22,18 @@ export async function POST(request: NextRequest) {
     }
 
     const token = generateToken({
-      id: user.id,
+      id: user.id.toString(),
       email: user.email,
-      name: user.name,
+      name: user.name || undefined,
       role: user.role,
     });
 
     const response = NextResponse.json({
       message: "Login successful",
       user: {
-        id: user.id,
+        id: user.id.toString(),
         email: user.email,
-        name: user.name,
+        name: user.name || undefined,
         role: user.role,
       },
     });

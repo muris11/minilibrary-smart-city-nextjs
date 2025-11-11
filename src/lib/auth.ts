@@ -1,25 +1,10 @@
+import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { NextRequest } from "next/server";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
-
-// Mock user storage (in production, replace with real database)
-const users: Array<{
-  id: string;
-  email: string;
-  name?: string;
-  password: string;
-  role: string;
-}> = [
-  {
-    id: "admin-1",
-    email: "admin@gmail.com",
-    name: "Admin User",
-    password: "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi", // bcrypt hash for "admin"
-    role: "ADMIN"
-  }
-];
+const prisma = new PrismaClient();
 
 export async function authenticateUser(email: string, password: string) {
   // For testing purposes, accept admin@gmail.com / admin
@@ -32,8 +17,11 @@ export async function authenticateUser(email: string, password: string) {
     };
   }
 
-  // Find user in mock storage
-  const user = users.find(u => u.email === email);
+  // Find user in database
+  const user = await prisma.user.findUnique({
+    where: { email },
+  });
+
   if (!user) {
     return null;
   }
@@ -44,7 +32,7 @@ export async function authenticateUser(email: string, password: string) {
   }
 
   return {
-    id: user.id,
+    id: user.id.toString(),
     email: user.email,
     name: user.name,
     role: user.role,
@@ -57,25 +45,27 @@ export async function createUser(
   name?: string
 ) {
   // Check if user already exists
-  const existingUser = users.find(u => u.email === email);
+  const existingUser = await prisma.user.findUnique({
+    where: { email },
+  });
+
   if (existingUser) {
     throw new Error("User already exists");
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const newUser = {
-    id: `user-${Date.now()}`,
-    email,
-    name,
-    password: hashedPassword,
-    role: "USER"
-  };
-
-  users.push(newUser);
+  const newUser = await prisma.user.create({
+    data: {
+      email,
+      name,
+      password: hashedPassword,
+      role: "USER",
+    },
+  });
 
   return {
-    id: newUser.id,
+    id: newUser.id.toString(),
     email: newUser.email,
     name: newUser.name,
     role: newUser.role,

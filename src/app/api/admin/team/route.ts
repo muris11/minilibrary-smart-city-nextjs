@@ -121,6 +121,7 @@ export async function POST(request: NextRequest) {
         avatar,
         email,
         order: order || 0,
+        isActive: true,
       },
     });
 
