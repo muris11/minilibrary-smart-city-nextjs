@@ -345,7 +345,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-slate-800 py-8 mt-16 relative z-10">
         <div className="max-w-7xl mx-auto px-6 text-center text-gray-400">
-          <p>© 2024 Mini Library Smart City. Building the future, today.</p>
+          <p>© 2025 Kelompok 1 Bahasa Inggris</p>
         </div>
       </footer>
     </div>
