@@ -235,7 +235,7 @@ export default function OurTeamPage() {
               >
                 <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700 hover:border-purple-500/40 transition-all duration-300 h-full">
                   <CardHeader className="text-center pb-4">
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full mx-auto mb-3 sm:mb-4 overflow-hidden relative">
+                    <div className="w-full aspect-square bg-linear-to-br from-purple-500 to-pink-500 rounded-lg mx-auto mb-3 sm:mb-4 flex items-center justify-center overflow-hidden relative">
                       {member.avatar ? (
                         <>
                           <Image
@@ -251,12 +251,12 @@ export default function OurTeamPage() {
                               );
                             }}
                           />
-                          {/* Gradient overlay for better text contrast if needed */}
-                          <div className="absolute inset-0 bg-linear-to-br from-purple-500/20 to-pink-500/20 rounded-full"></div>
+                          {/* Subtle overlay */}
+                          <div className="absolute inset-0 bg-linear-to-br from-purple-500/10 to-pink-500/10 rounded-lg"></div>
                         </>
                       ) : (
-                        <div className="w-full h-full bg-linear-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                          <span className="text-xl sm:text-2xl font-bold text-white">
+                        <div className="flex items-center justify-center w-full h-full">
+                          <span className="text-2xl sm:text-3xl font-bold text-white">
                             {member.name
                               .split(" ")
                               .map((n) => n[0])
@@ -265,13 +265,15 @@ export default function OurTeamPage() {
                         </div>
                       )}
                       {member.avatar && !member.avatar.includes("supabase") && (
-                        <div className="absolute inset-0 bg-linear-to-br from-purple-500/20 to-pink-500/20 rounded-full hidden">
-                          <span className="text-xl sm:text-2xl font-bold text-white flex items-center justify-center h-full">
-                            {member.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </span>
+                        <div className="absolute inset-0 bg-linear-to-br from-purple-500/20 to-pink-500/20 rounded-lg hidden">
+                          <div className="flex items-center justify-center h-full">
+                            <span className="text-2xl sm:text-3xl font-bold text-white">
+                              {member.name
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")}
+                            </span>
+                          </div>
                         </div>
                       )}
                     </div>
