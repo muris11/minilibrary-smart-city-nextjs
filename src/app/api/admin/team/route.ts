@@ -64,10 +64,16 @@ export async function GET(request: NextRequest) {
 
 // POST /api/admin/team - Create new team member
 export async function POST(request: NextRequest) {
+  console.log('🔍 TEAM API: Starting POST request');
+
   try {
+    console.log('🔐 TEAM API: Checking authentication...');
     // Check authentication
     const user = await authenticateRequest(request);
+    console.log('👤 TEAM API: Auth result:', user ? 'authenticated' : 'not authenticated');
+
     if (!user || user.role !== "ADMIN") {
+      console.log('❌ TEAM API: Unauthorized access attempt');
       return NextResponse.json(
         { error: "Unauthorized" },
         {
@@ -81,9 +87,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log('📝 TEAM API: Parsing request body...');
     const body = await request.json();
     const { name, role, bio, avatar, email, order } = body;
+    console.log('📋 TEAM API: Received data:', { name, role, email, avatar: avatar ? 'present' : 'none' });
 
+    console.log('💾 TEAM API: Creating team member in database...');
     const teamMember = await prisma.teamMember.create({
       data: {
         name,
@@ -95,6 +104,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    console.log('✅ TEAM API: Team member created successfully:', teamMember.id);
     return NextResponse.json(teamMember, {
       headers: {
         'Access-Control-Allow-Origin': '*',
@@ -103,9 +113,22 @@ export async function POST(request: NextRequest) {
       }
     });
   } catch (error) {
-    console.error("Error creating team member:", error);
+    console.error('❌ TEAM API: Error creating team member:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    const errorName = error instanceof Error ? error.name : 'Unknown';
+
+    console.error('❌ TEAM API: Error details:', {
+      message: errorMessage,
+      stack: errorStack,
+      name: errorName
+    });
+
     return NextResponse.json(
-      { error: "Failed to create team member" },
+      {
+        error: "Failed to create team member",
+        details: process.env.NODE_ENV === 'development' ? errorMessage : 'Internal server error'
+      },
       {
         status: 500,
         headers: {

@@ -20,10 +20,16 @@ export async function OPTIONS() {
 }
 
 export async function POST(request: NextRequest) {
+  console.log('🔍 UPLOAD API: Starting POST request');
+
   try {
+    console.log('🔐 UPLOAD API: Checking authentication...');
     // Check authentication
     const user = await authenticateRequest(request);
+    console.log('👤 UPLOAD API: Auth result:', user ? 'authenticated' : 'not authenticated');
+
     if (!user || user.role !== "ADMIN") {
+      console.log('❌ UPLOAD API: Unauthorized access attempt');
       return NextResponse.json(
         { error: "Unauthorized" },
         {
@@ -37,10 +43,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log('📝 UPLOAD API: Parsing form data...');
     const data = await request.formData();
     const file: File | null = data.get("file") as unknown as File;
 
     if (!file) {
+      console.log('❌ UPLOAD API: No file received');
       return NextResponse.json({ error: "No file received" }, {
         status: 400,
         headers: {
@@ -50,6 +58,12 @@ export async function POST(request: NextRequest) {
         }
       });
     }
+
+    console.log('📋 UPLOAD API: File received:', {
+      name: file.name,
+      size: file.size,
+      type: file.type
+    });
 
     // Validate file type
     const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
@@ -91,6 +105,7 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
+    console.log('📤 UPLOAD API: Uploading to Supabase Storage...');
     // Upload to Supabase Storage
     const { error: uploadError } = await supabase.storage
       .from("uploads")
@@ -100,7 +115,7 @@ export async function POST(request: NextRequest) {
       });
 
     if (uploadError) {
-      console.error("Supabase upload error:", uploadError);
+      console.error('❌ UPLOAD API: Supabase upload error:', uploadError);
 
       // Provide more specific error messages
       if (uploadError.message?.includes("Bucket not found")) {
@@ -158,12 +173,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log('✅ UPLOAD API: File uploaded successfully to Supabase');
     // Get public URL
     const { data: urlData } = supabase.storage
       .from("uploads")
       .getPublicUrl(fileName);
 
+    console.log('🔗 UPLOAD API: Generated public URL:', urlData.publicUrl);
+
     if (!urlData?.publicUrl) {
+      console.error('❌ UPLOAD API: Failed to get public URL');
       return NextResponse.json(
         { error: "Failed to get public URL" },
         {
@@ -176,6 +195,8 @@ export async function POST(request: NextRequest) {
         }
       );
     }
+
+    console.log('🎉 UPLOAD API: Upload completed successfully, returning response');
 
     return NextResponse.json({
       message: "File uploaded successfully",
