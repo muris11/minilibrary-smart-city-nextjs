@@ -34,18 +34,38 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const teamMembers = await prisma.teamMember.findMany({
-      where: { isActive: true },
-      orderBy: { order: "asc" },
-    });
+    console.log('✅ TEAM API: Authentication successful for user:', user.email);
+    console.log('📊 TEAM API: Fetching team members from database...');
 
-    return NextResponse.json(teamMembers, {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      }
-    });
+    try {
+      const teamMembers = await prisma.teamMember.findMany({
+        where: { isActive: true },
+        orderBy: { order: "asc" },
+      });
+
+      console.log('✅ TEAM API: Successfully fetched', teamMembers.length, 'team members');
+
+      return NextResponse.json(teamMembers, {
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        }
+      });
+    } catch (dbError) {
+      console.error('❌ TEAM API: Database error:', dbError);
+      return NextResponse.json(
+        { error: "Database connection failed. Please check DATABASE_URL configuration." },
+        {
+          status: 500,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          }
+        }
+      );
+    }
   } catch (error) {
     console.error("Error fetching team members:", error);
     return NextResponse.json(

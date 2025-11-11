@@ -40,20 +40,35 @@ export async function GET(request: NextRequest) {
     console.log('✅ CONTENT API: Authentication successful for user:', user.email);
     console.log('📊 CONTENT API: Fetching content pages from database...');
 
-    const contentPages = await prisma.contentPage.findMany({
-      where: { isActive: true },
-      orderBy: { createdAt: "desc" },
-    });
+    try {
+      const contentPages = await prisma.contentPage.findMany({
+        where: { isActive: true },
+        orderBy: { createdAt: "desc" },
+      });
 
-    console.log('✅ CONTENT API: Successfully fetched', contentPages.length, 'content pages');
+      console.log('✅ CONTENT API: Successfully fetched', contentPages.length, 'content pages');
 
-    return NextResponse.json(contentPages, {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      }
-    });
+      return NextResponse.json(contentPages, {
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        }
+      });
+    } catch (dbError) {
+      console.error('❌ CONTENT API: Database error:', dbError);
+      return NextResponse.json(
+        { error: "Database connection failed. Please check DATABASE_URL configuration." },
+        {
+          status: 500,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          }
+        }
+      );
+    }
   } catch (error) {
     console.error('❌ CONTENT API: Error fetching content:', error);
     return NextResponse.json(
