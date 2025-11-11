@@ -275,7 +275,7 @@ export default function AdminDashboard() {
   const adminStats = [
     {
       title: "Total Users",
-      value: "1,234",
+      value: teamMembers.length.toString(),
       icon: Users,
       color: "text-blue-400",
       bgColor: "bg-blue-500/10",
@@ -289,7 +289,7 @@ export default function AdminDashboard() {
     },
     {
       title: "Content Pages",
-      value: "8",
+      value: contentPages.length.toString(),
       icon: BarChart3,
       color: "text-purple-400",
       bgColor: "bg-purple-500/10",
