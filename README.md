@@ -9,12 +9,14 @@ A modern Next.js application for smart city content management with admin panel,
 ## ✨ Features
 
 ### 🏙️ Smart City Content Management
+
 - **Dynamic Content Pages**: Create and manage rich content about smart city concepts
 - **Smart City Pillars**: Dedicated sections covering the 6 fundamental pillars of smart cities
 - **Lampung Implementation**: Specific content about smart city implementation in Lampung province
 - **Technology Stack**: Comprehensive information about technologies used in smart cities
 
 ### 🎯 Interactive Quiz System
+
 - **Smart City Knowledge Quiz**: 10-question interactive quiz testing smart city knowledge
 - **Real-time Scoring**: Immediate feedback and scoring system
 - **Timer Functionality**: 10-minute time limit for completion
@@ -23,29 +25,34 @@ A modern Next.js application for smart city content management with admin panel,
 - **Animated UI**: Smooth transitions and modern animations
 
 ### 👥 Team Member Management
+
 - **Team Profiles**: Add and manage team member information
 - **Role-based Access**: Different permissions for team members
 - **Profile Management**: Update team member details and photos
 
 ### 🔐 Authentication & Security
+
 - **JWT Authentication**: Secure token-based authentication
 - **Admin Panel**: Protected admin dashboard for content management
 - **Password Hashing**: bcrypt encryption for secure password storage
 - **Session Management**: Proper login/logout functionality
 
 ### 📱 User Experience
+
 - **Responsive Design**: Mobile-first approach with Radix UI components
 - **Modern UI**: Beautiful gradients, animations, and glassmorphism effects
 - **Accessibility**: WCAG compliant design with proper contrast and navigation
 - **Fast Performance**: Optimized Next.js 16 with App Router
 
 ### 🗄️ Database & Backend
+
 - **PostgreSQL Database**: Robust relational database with Prisma ORM
 - **API Routes**: RESTful API endpoints for all operations
 - **File Upload**: Image upload functionality for content and profiles
 - **Data Validation**: Server-side validation and error handling
 
 ### ☁️ Deployment & DevOps
+
 - **Vercel Ready**: Optimized for Vercel deployment platform
 - **Environment Configuration**: Flexible environment variable setup
 - **Database Migrations**: Automated database schema management
@@ -169,11 +176,13 @@ npm run db:setup
 ## API Routes
 
 ### Authentication Endpoints
+
 - `POST /api/auth/login` - User authentication with JWT token generation
 - `POST /api/auth/logout` - Token invalidation and logout
 - `POST /api/setup/admin` - Initial admin user creation
 
 ### Admin Content Management
+
 - `GET /api/admin/content` - Retrieve all content pages with pagination
 - `POST /api/admin/content` - Create new content page with rich text support
 - `GET /api/admin/content/[id]` - Get specific content page by ID
@@ -181,6 +190,7 @@ npm run db:setup
 - `DELETE /api/admin/content/[id]` - Remove content page
 
 ### Admin Team Management
+
 - `GET /api/admin/team` - Get all team members with filtering options
 - `POST /api/admin/team` - Add new team member with profile data
 - `GET /api/admin/team/[id]` - Retrieve specific team member details
@@ -188,10 +198,12 @@ npm run db:setup
 - `DELETE /api/admin/team/[id]` - Remove team member
 
 ### File Management
+
 - `POST /api/admin/upload` - Upload and store images (avatars, content images)
 - `GET /api/admin/test-upload` - Test file upload functionality
 
 ### Utility Endpoints
+
 - `GET /api/health` - Application health check
 - `GET /api/admin/test-auth` - Authentication testing endpoint
 
@@ -213,6 +225,7 @@ The interactive quiz system includes:
 The application uses PostgreSQL with the following main entities:
 
 ### User Model
+
 - `id`: Primary key
 - `email`: Unique email address
 - `password`: Hashed password
@@ -221,6 +234,7 @@ The application uses PostgreSQL with the following main entities:
 - `updatedAt`: Last update timestamp
 
 ### Content Model
+
 - `id`: Primary key
 - `title`: Content title
 - `content`: Rich text content (JSON)
@@ -230,6 +244,7 @@ The application uses PostgreSQL with the following main entities:
 - `updatedAt`: Last update timestamp
 
 ### TeamMember Model
+
 - `id`: Primary key
 - `name`: Team member name
 - `position`: Job title/role
@@ -359,6 +374,7 @@ npm run test:watch       # Run tests in watch mode
 ## 🔄 Development Workflow
 
 1. **Local Development**:
+
    ```bash
    npm install
    npm run db:generate
@@ -366,12 +382,14 @@ npm run test:watch       # Run tests in watch mode
    ```
 
 2. **Database Changes**:
+
    ```bash
    npx prisma migrate dev --name your-migration-name
    npm run db:generate
    ```
 
 3. **Adding New Features**:
+
    - Create components in `src/components/`
    - Add API routes in `src/app/api/`
    - Create pages in `src/app/`
