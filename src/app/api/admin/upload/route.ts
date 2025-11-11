@@ -16,12 +16,14 @@ export async function OPTIONS() {
 
 export async function POST(request: NextRequest) {
   console.log('🔍 UPLOAD API: Starting POST request');
+  console.log('📋 UPLOAD API: Request headers:', Object.fromEntries(request.headers));
+  console.log('🍪 UPLOAD API: Request cookies:', request.cookies.getAll());
 
   try {
     console.log('🔐 UPLOAD API: Checking authentication...');
     // Check authentication
     const user = await authenticateRequest(request);
-    console.log('👤 UPLOAD API: Auth result:', user ? 'authenticated' : 'not authenticated');
+    console.log('👤 UPLOAD API: Auth result:', user ? `authenticated as ${user.email} (${user.role})` : 'not authenticated');
 
     if (!user || user.role !== "ADMIN") {
       console.log('❌ UPLOAD API: Unauthorized access attempt');
@@ -110,18 +112,20 @@ export async function POST(request: NextRequest) {
     let publicUrl: string;
 
     // Check if we're in production (Vercel) or development
-    // Use Vercel Blob if token is available, otherwise fallback to local storage
+    // Use Vercel Blob if token is available AND we're in production
     const hasBlobToken = !!process.env.BLOB_READ_WRITE_TOKEN;
-    const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL || hasBlobToken;
+    const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL;
+    const shouldUseBlob = isProduction && hasBlobToken;
 
     console.log('🌍 UPLOAD API: Environment detection:', {
       NODE_ENV: process.env.NODE_ENV,
       VERCEL: process.env.VERCEL,
       hasBlobToken: hasBlobToken,
-      willUseBlob: isProduction
+      isProduction: isProduction,
+      willUseBlob: shouldUseBlob
     });
 
-    if (isProduction) {
+    if (shouldUseBlob) {
       // Use Vercel Blob Storage for production
       console.log('📤 UPLOAD API: Using Vercel Blob Storage (production)');
       try {

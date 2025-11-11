@@ -149,7 +149,9 @@ export default function AdminDashboard() {
 
   const loadContentPages = async () => {
     try {
-      const response = await fetch("/api/admin/content");
+      const response = await fetch("/api/admin/content", {
+        credentials: "include",
+      });
       if (response.ok) {
         const data = await response.json();
         setContentPages(data);
@@ -161,7 +163,9 @@ export default function AdminDashboard() {
 
   const loadTeamMembers = async () => {
     try {
-      const response = await fetch("/api/admin/team");
+      const response = await fetch("/api/admin/team", {
+        credentials: "include",
+      });
       if (response.ok) {
         const data = await response.json();
         setTeamMembers(data);
@@ -182,6 +186,7 @@ export default function AdminDashboard() {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(contentData),
+        credentials: "include",
       });
 
       if (response.ok) {
@@ -204,6 +209,7 @@ export default function AdminDashboard() {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(memberData),
+        credentials: "include",
       });
 
       if (response.ok) {
@@ -220,6 +226,7 @@ export default function AdminDashboard() {
       try {
         const response = await fetch(`/api/admin/content/${id}`, {
           method: "DELETE",
+          credentials: "include",
         });
         if (response.ok) {
           loadContentPages();
@@ -235,6 +242,7 @@ export default function AdminDashboard() {
       try {
         const response = await fetch(`/api/admin/team/${id}`, {
           method: "DELETE",
+          credentials: "include",
         });
         if (response.ok) {
           loadTeamMembers();
@@ -247,7 +255,10 @@ export default function AdminDashboard() {
 
   const handleLogout = async () => {
     try {
-      await fetch("/api/auth/logout", { method: "POST" });
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
       document.cookie =
         "auth-token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
       router.push("/login");
@@ -779,6 +790,7 @@ export default function AdminDashboard() {
                       const uploadResponse = await fetch("/api/admin/upload", {
                         method: "POST",
                         body: uploadFormData,
+                        credentials: "include",
                       });
 
                       if (uploadResponse.ok) {
