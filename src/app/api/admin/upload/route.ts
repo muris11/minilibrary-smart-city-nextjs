@@ -109,13 +109,13 @@ export async function POST(request: NextRequest) {
 
     console.log('📤 UPLOAD API: Uploading file...');
 
-    let publicUrl: string;
+    let publicUrl: string = "";
 
     // Check if we're in production (Vercel) or development
     // Use Vercel Blob if token is available AND we're in production
     const hasBlobToken = !!process.env.BLOB_READ_WRITE_TOKEN;
     const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL;
-    const shouldUseBlob = isProduction && hasBlobToken;
+    let shouldUseBlob = isProduction && hasBlobToken;
 
     console.log('🌍 UPLOAD API: Environment detection:', {
       NODE_ENV: process.env.NODE_ENV,
@@ -137,21 +137,14 @@ export async function POST(request: NextRequest) {
         console.log('✅ UPLOAD API: File uploaded to Vercel Blob:', publicUrl);
       } catch (blobError) {
         console.error('❌ UPLOAD API: Vercel Blob upload failed:', blobError);
-        return NextResponse.json(
-          { error: "Failed to upload to cloud storage. Please check Vercel Blob configuration." },
-          {
-            status: 500,
-            headers: {
-              'Access-Control-Allow-Origin': '*',
-              'Access-Control-Allow-Methods': 'POST, OPTIONS',
-              'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-            }
-          }
-        );
+        console.log('🔄 UPLOAD API: Falling back to local storage due to blob error');
+        shouldUseBlob = false;
       }
-    } else {
-      // Use local storage for development
-      console.log('📤 UPLOAD API: Using local storage (development)');
+    }
+
+    if (!shouldUseBlob) {
+      // Use local storage for development or as fallback
+      console.log('📤 UPLOAD API: Using local storage');
 
       try {
         const { mkdir, writeFile } = await import("fs/promises");
@@ -174,7 +167,7 @@ export async function POST(request: NextRequest) {
       } catch (localError) {
         console.error('❌ UPLOAD API: Local storage failed:', localError);
         return NextResponse.json(
-          { error: "Failed to save file locally" },
+          { error: "Failed to save file" },
           {
             status: 500,
             headers: {
