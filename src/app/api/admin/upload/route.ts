@@ -1,7 +1,7 @@
 import { authenticateRequest } from "@/lib/auth";
+import { put } from "@vercel/blob";
 import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
-import { put } from "@vercel/blob";
 
 export async function OPTIONS() {
   return new Response(null, {
@@ -54,17 +54,19 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    console.log('📋 UPLOAD API: File received:', {
+    console.log('📋 UPLOAD API: File details:', {
       name: file.name,
       size: file.size,
-      type: file.type
+      type: file.type,
+      lastModified: file.lastModified
     });
 
     // Validate file type
-    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"];
     if (!allowedTypes.includes(file.type)) {
+      console.log('❌ UPLOAD API: Invalid file type:', file.type);
       return NextResponse.json(
-        { error: "Invalid file type. Only JPEG, PNG, and WebP are allowed." },
+        { error: `Invalid file type. Only JPEG, PNG, WebP, and GIF are allowed. Got: ${file.type}` },
         {
           status: 400,
           headers: {
@@ -93,12 +95,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate unique filename
-    const fileExtension = file.name.split(".").pop();
+    const fileExtension = file.name.split(".").pop()?.toLowerCase() || "jpg";
     const fileName = `${randomUUID()}.${fileExtension}`;
+    console.log('📝 UPLOAD API: Generated filename:', fileName);
 
     // Convert file to buffer
+    console.log('🔄 UPLOAD API: Converting file to buffer...');
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
+    console.log('✅ UPLOAD API: File converted to buffer, size:', buffer.length);
 
     console.log('📤 UPLOAD API: Uploading file...');
 
@@ -108,29 +113,63 @@ export async function POST(request: NextRequest) {
     if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
       // Use Vercel Blob Storage for production
       console.log('📤 UPLOAD API: Using Vercel Blob Storage (production)');
-      const blob = await put(fileName, buffer, {
-        access: 'public',
-        contentType: file.type,
-      });
-      publicUrl = blob.url;
-      console.log('✅ UPLOAD API: File uploaded to Vercel Blob:', publicUrl);
+      try {
+        const blob = await put(fileName, buffer, {
+          access: 'public',
+          contentType: file.type,
+        });
+        publicUrl = blob.url;
+        console.log('✅ UPLOAD API: File uploaded to Vercel Blob:', publicUrl);
+      } catch (blobError) {
+        console.error('❌ UPLOAD API: Vercel Blob upload failed:', blobError);
+        return NextResponse.json(
+          { error: "Failed to upload to cloud storage. Please check Vercel Blob configuration." },
+          {
+            status: 500,
+            headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Methods': 'POST, OPTIONS',
+              'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            }
+          }
+        );
+      }
     } else {
       // Use local storage for development
       console.log('📤 UPLOAD API: Using local storage (development)');
-      const { mkdir, writeFile } = await import("fs/promises");
-      const { join } = await import("path");
 
-      const uploadsDir = join(process.cwd(), "public", "uploads");
       try {
-        await mkdir(uploadsDir, { recursive: true });
-      } catch {
-        // Directory might already exist, continue
-      }
+        const { mkdir, writeFile } = await import("fs/promises");
+        const { join } = await import("path");
 
-      const filePath = join(uploadsDir, fileName);
-      await writeFile(filePath, buffer);
-      publicUrl = `/uploads/${fileName}`;
-      console.log('✅ UPLOAD API: File saved locally to:', filePath);
+        const uploadsDir = join(process.cwd(), "public", "uploads");
+        console.log('📁 UPLOAD API: Uploads directory:', uploadsDir);
+
+        try {
+          await mkdir(uploadsDir, { recursive: true });
+          console.log('✅ UPLOAD API: Uploads directory created/verified');
+        } catch (mkdirError) {
+          console.warn('⚠️ UPLOAD API: Directory creation warning:', mkdirError);
+        }
+
+        const filePath = join(uploadsDir, fileName);
+        await writeFile(filePath, buffer);
+        publicUrl = `/uploads/${fileName}`;
+        console.log('✅ UPLOAD API: File saved locally to:', filePath);
+      } catch (localError) {
+        console.error('❌ UPLOAD API: Local storage failed:', localError);
+        return NextResponse.json(
+          { error: "Failed to save file locally" },
+          {
+            status: 500,
+            headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Methods': 'POST, OPTIONS',
+              'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            }
+          }
+        );
+      }
     }
 
     return NextResponse.json(
@@ -151,9 +190,9 @@ export async function POST(request: NextRequest) {
     );
 
   } catch (error) {
-    console.error("Error uploading file:", error);
+    console.error("❌ UPLOAD API: Unexpected error:", error);
     return NextResponse.json(
-      { error: "Failed to upload file" },
+      { error: `Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}` },
       {
         status: 500,
         headers: {
