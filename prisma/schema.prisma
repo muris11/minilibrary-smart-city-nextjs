@@ -1,0 +1,104 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  quizAttempts QuizAttempt[]
+  profiles     UserProfile?
+}
+
+model UserProfile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  displayName String?
+  bio         String?
+  avatar      String?
+  totalScore  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quizAttempts QuizAttempt[]
+}
+
+model QuizAttempt {
+  id          String   @id @default(cuid())
+  userId      String
+  profileId   String?
+  score       Int
+  totalQuestions Int
+  completedAt DateTime @default(now())
+  
+  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  profile UserProfile?  @relation(fields: [profileId], references: [id], onDelete: SetNull)
+  answers QuizAnswer[]
+}
+
+model QuizAnswer {
+  id            String @id @default(cuid())
+  quizAttemptId String
+  questionId    String
+  answer        String
+  isCorrect     Boolean
+  
+  quizAttempt QuizAttempt @relation(fields: [quizAttemptId], references: [id], onDelete: Cascade)
+}
+
+model QuizQuestion {
+  id          String   @id @default(cuid())
+  question    String
+  options     String   // JSON string of options
+  correctAnswer String
+  explanation String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ContentPage {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  content     String   // Rich text content
+  metadata    String?  // JSON string for additional data
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model TeamMember {
+  id          String   @id @default(cuid())
+  name        String
+  role        String
+  bio         String?
+  avatar      String?
+  email       String?
+  isActive    Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum Role {
+  USER
+  ADMIN
+}
