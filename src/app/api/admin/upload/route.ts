@@ -62,8 +62,38 @@ export async function POST(request: NextRequest) {
 
     if (uploadError) {
       console.error("Supabase upload error:", uploadError);
+
+      // Provide more specific error messages
+      if (uploadError.message?.includes("Bucket not found")) {
+        return NextResponse.json(
+          {
+            error: "Storage bucket 'uploads' not found. Please create it in Supabase Dashboard",
+            details: "Go to Supabase Dashboard > Storage > Create bucket named 'uploads' and make it public",
+            instructions: [
+              "1. Open Supabase Dashboard",
+              "2. Go to Storage section",
+              "3. Click 'Create bucket'",
+              "4. Name: 'uploads'",
+              "5. Check 'Public bucket'",
+              "6. Add policies: Allow all users for SELECT, INSERT, UPDATE, DELETE"
+            ]
+          },
+          { status: 500 }
+        );
+      }
+
+      if (uploadError.message?.includes("permission")) {
+        return NextResponse.json(
+          {
+            error: "Storage permission denied",
+            details: "Make sure the 'uploads' bucket has public read/write permissions"
+          },
+          { status: 500 }
+        );
+      }
+
       return NextResponse.json(
-        { error: "Failed to upload file to storage" },
+        { error: `Upload failed: ${uploadError.message}` },
         { status: 500 }
       );
     }
