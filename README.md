@@ -113,13 +113,6 @@ npx prisma migrate dev
 npm run db:setup
 ```
 
-## Admin Access
-
-Default admin credentials:
-
-- **Email:** admin@gmail.com
-- **Password:** admin
-
 ## API Routes
 
 ### Authentication
