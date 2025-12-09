@@ -409,13 +409,13 @@ export default function SmartLampungPage() {
             <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-3 sm:p-4 md:p-6 lg:p-8">
               <div className="mb-3 sm:mb-4 md:mb-6">
                 <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-purple-400">
-                  Video About Lampung City Development
+                  Watch: Smart City Lampung Overview
                 </h2>
               </div>
               <div className="aspect-video w-full max-w-4xl mx-auto">
-                <iframe
-                  src="https://www.youtube.com/embed/Iy6G14K7uaY"
-                  title="Video Lampung City"
+                <iframe 
+                  src="https://www.youtube.com/embed/JuKv-4bw3QQ"
+                  title="Smart City Lampung"
                   className="w-full h-full rounded-lg"
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
